@@ -2,7 +2,7 @@ from groq import Groq
 
 client = Groq()
 completion = client.chat.completions.create(
-    model="meta-llama/llama-4-scout-17b-16e-instruct",
+    model="llama3-8b-8192",
     messages=[
       {
         "role": "user",
