@@ -1,18 +1,39 @@
-import os
-from flask import Flask, render_template, request, Response
+import os, dotenv
+from flask import Flask, render_template, request, Response, session, redirect
 from flask_cors import CORS  # To handle cross-origin requests
 from groq import Groq
 
+dotenv.load_dotenv()
 client = Groq(
-    api_key=os.environ.get("GROQ_API_KEY"),
+    api_key=os.getenv("GROQ_API_KEY"),
 )
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 CORS(app)  # Allow all domains for now (development only)
+app.secret_key = os.getenv("FLASK_SECRET_KEY")
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    user_id = session.get("user_id")
+    if not user_id:
+        return redirect("/login")
+    else:
+        print(f"User ID: {user_id} is logged in")
+        return render_template("index.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        # Handle login logic here
+        user_id = request.form.get("user_id")
+        if user_id:
+            session["user_id"] = user_id
+            return redirect("/")
+        else:
+            return "Please provide a user ID", 400
+    # Render a simple login page
+    else:
+        return render_template("login.html")
 
 @app.route("/chat", methods=["POST"])
 def chat():
