@@ -1,6 +1,10 @@
 from groq import Groq
+import os
 
-client = Groq()
+client = Groq(
+    api_key=os.environ.get("GROQ_API_KEY"),
+)
+
 completion = client.chat.completions.create(
     model="llama3-8b-8192",
     messages=[
