@@ -1,5 +1,6 @@
 async function sendMessage() {
   const input = document.getElementById("user-input");
+  const isVoiceChecked = document.getElementById("voice-input").checked;
   const chatBox = document.getElementById("chat-box");
 
   const message = input.value;
@@ -8,10 +9,12 @@ async function sendMessage() {
   chatBox.innerHTML += `<p><b>You:</b> ${message}</p>`;
   input.value = "";
 
+
+  body = { ...{ message }, ...{ isVoiceChecked } };
   const response = await fetch("/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message }),
+    body: JSON.stringify(body)
   });
 
   const data = await response.json();

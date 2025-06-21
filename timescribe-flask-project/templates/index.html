@@ -9,13 +9,12 @@
     <h1>TimeScribe</h1>
     <div id="chat-box"></div>
     <input type="text" id="user-input" placeholder="Start logging..." />
-    <!--ACTION: Add Voice Input-->
+    <button onclick="sendMessage()">Send</button>
+    <input type="checkbox" id="voice-input" />
+    
     <!--ACTION: Add Summarize command-->
     <!--ACTION: Add Recall command-->
     <!--ACTION: Add Speak command-->
-    <button onclick="sendMessage()">Send</button>
-    
-    
     <br>
     <button onclick="window.location.href='/login'">Logout</button>    
     <script src="/static/script.js"></script>
