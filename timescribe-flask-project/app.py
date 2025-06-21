@@ -1,4 +1,5 @@
 import os, dotenv
+import json
 from flask import Flask, render_template, request, Response, session, redirect
 from flask_cors import CORS  # To handle cross-origin requests
 from groq import Groq
@@ -39,10 +40,31 @@ def login():
 def chat():
     data = request.get_json()
     user_input = data.get("message", "")
+    isVoiceChecked = data.get("isVoiceChecked", False)
 
-    if not user_input:
+    if not user_input and not isVoiceChecked:
         return {"error": "No message provided"}, 400
-
+    
+    if isVoiceChecked:
+        # Specify the path to the audio file
+        filename = os.path.dirname(__file__) + "/sample_audio.m4a" # Replace with your audio file!
+        # Open the audio file
+        with open(filename, "rb") as file:
+        # Create a translation of the audio file
+            translation = client.audio.translations.create(
+            file=(filename, file.read()), # Required audio file
+            model="distil-whisper-large-v3-en", # Required model to use for translation
+            prompt="Specify context or spelling",  # Optional
+            language="en", # Optional ('en' only)
+            response_format="json",  # Optional
+            temperature=0.0  # Optional
+        )
+        # Return the translation text as a response
+        if translation.text:
+            user_input = translation.text
+        else:
+            return {"error": "No translation available"}, 400
+    
     def stream():
         completion = client.chat.completions.create(
             model="meta-llama/llama-4-scout-17b-16e-instruct",
