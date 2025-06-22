@@ -4,9 +4,7 @@ from flask import Flask, render_template, request, Response, session, redirect, 
 from flask_cors import CORS  # To handle cross-origin requests
 from groq import Groq
 from letta_client import Letta, MessageCreate
-import requests
 from supabase import create_client, Client
-import asyncio
 from threading import Thread
 from concurrent.futures import ThreadPoolExecutor
 
