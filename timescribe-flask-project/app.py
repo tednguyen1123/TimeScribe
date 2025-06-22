@@ -39,7 +39,7 @@ def index():
                 embedding="openai/text-embedding-3-small",
                 memory_blocks=[
                     {"label": "human", "value": f"User name: {user_id}"},
-                    {"label": "persona", "value": "You are a memory journal keeper, helping users track their thoughts and experiences."}
+                    {"label": "persona", "value": "You are a memory journal keeper, helping users track their thoughts and experiences. Only respond with 'logged entry for {date}' when the user inputs a message."}
                 ]
             )
             agent_id = agent.id
@@ -69,9 +69,8 @@ def login():
 def chat():
     data = request.get_json()
     user_input = data.get("message", "")
-    datetime_now = datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M")
+    datetime_now = datetime.datetime.now().strftime(r"%Y-%m-%d")
     user_input = f"{datetime_now} \n\n{user_input}"
-    print(f"User input: {user_input}")
     if not user_input:
         return {"error": "No message provided"}, 400
 
@@ -85,16 +84,19 @@ def chat():
                 ),
             ],
         )
-        print("Letta response:", response)
     except requests.exceptions.Timeout as e:
         print("❌ Letta timeout error:", e)
         return jsonify({"error": "Request timed out"}), 504
     except Exception as e:
         print("❌ Letta error:", e)
         return jsonify({"error": str(e)}), 500
-    print("Gurt", response.messages[1].content)
-
-    return Response(response=response.messages[1].content, mimetype="text/plain")
+    
+    for msg in response.messages:
+        if msg.message_type == "assistant_message":
+            return jsonify({
+                "response": msg.content,
+                "timestamp": datetime_now
+    })
 
 @app.route("/transcribe", methods=["POST"])
 def transcribe():
@@ -116,8 +118,6 @@ def transcribe():
         transcription = translation.text
     else:
         transcription = "No transcription available."
-
-    print(transcription)
     
     return jsonify({"transcription": transcription})
         
