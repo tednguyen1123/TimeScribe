@@ -38,7 +38,12 @@
         width: calc(100% - 22px);
         border: 1px solid #ccc;
         border-radius: 6px;
-        display: block;
+      }
+      .danger {
+        background-color: #e74c3c;
+      }
+      .danger:hover {
+        background-color: #c0392b;
       }
       button {
         padding: 10px 16px;
@@ -72,15 +77,28 @@
       #voice-output {
         margin-right: 6px;
       }
+      .inline {
+        display: flex;
+        flex-wrap: row wrap;
+        align-items: center;
+        gap: 10px;
+      }
+      .inline button {
+        text-wrap: nowrap;
+        margin: 0;
+      }
+      .inline input[type="text"] {
+        flex-grow: 1;
+      }
     </style>
   </head>
   <body>
     <h1>TimeScribe</h1>
     <div id="chat-box"></div>
     <div id="listening-box"></div>
-    <input type="text" id="user-input" placeholder="Start logging..." />
-    <button onclick="sendMessage()">Send</button><br>
-    
+      <form class="inline" onsubmit="return false;">
+        <input type="text" id="user-input" placeholder="Start logging..." /><button type="submit" onclick="sendMessage()">Send</button><br>
+      </form>
     <button onclick="startRecordingLive()">Start Recording 🎤</button>
     <button onclick="stopRecordingLive()">Stop Recording 🛑</button><br>
     <input type="checkbox" id="voice-output" /><label for="voice-output">Enable Voice Output</label>
@@ -89,12 +107,16 @@
     <!--ACTION: Add Recall command-->
     <!--ACTION: Add Speak command-->
     <br>
-    <button onclick="window.location.href='/login'">Logout</button>    
-    <script src="/static/script.js"></script>
+    
+    <div class="inline">
 
-    <label for="date-input">Start Date:</label>
-    <input type="date" id="date-input" name="entry-date" required />
-    <label for="date-input">End Date:</label>
-    <input type="date" id="date-input" name="entry-date" required />
+      <label for="date-input">Start Date:</label>
+      <input type="date" id="date-input" name="entry-date" required />
+      <label for="date-input">End Date:</label>
+      <input type="date" id="date-input" name="entry-date" required />
+      <button onclick="summarizeEntries()">Summarize Entries</button><br>
+    </div>
+      <button onclick="window.location.href='/login'" name="logout" class="danger">Logout</button>   
+      <script src="/static/script.js"></script>
   </body>
 </html>
