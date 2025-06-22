@@ -83,3 +83,29 @@ async function sendMessage() {
   console.log("AI Response:", data);
   chatBox.innerHTML += `<p><b>AI:</b> ${data.response}</p>`;
 }
+
+function summarizeEntries() {
+  const chatBox = document.getElementById("chat-box");
+  const dateStart = document.getElementById("date-start");
+  const dateEnd = document.getElementById("date-end");
+
+
+  chatBox.innerHTML += `<p><b>Summarizing entries from </b> ${dateStart.value} <b>to</b> ${dateEnd.value}</p>`;
+
+
+  body = { date_start: dateStart.value, date_end: dateEnd.value };
+  fetch("/summarize", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log("Summary Response:", data);
+      chatBox.innerHTML += `<p><b>Summary:</b> ${data.summary}</p>`;
+    })
+    .catch(err => {
+      console.error("Error summarizing entries:", err);
+      chatBox.innerHTML += `<p><b>Error:</b> Could not summarize entries.</p>`;
+    });
+}

@@ -108,14 +108,16 @@
     <!--ACTION: Add Speak command-->
     <br>
     
-    <div class="inline">
+    <form class="inline" onsubmit="return false;">
 
       <label for="date-input">Start Date:</label>
-      <input type="date" id="date-input" name="entry-date" required />
+      <input type="date" id="date-start" name="entry-date" required />
       <label for="date-input">End Date:</label>
-      <input type="date" id="date-input" name="entry-date" required />
-      <button onclick="summarizeEntries()">Summarize Entries</button><br>
-    </div>
+      <input type="date" id="date-end" name="entry-date" required />
+      <button type="submit" onclick="summarizeEntries()">Summarize Entries</button>
+    </form><br>
+
+    
       <button onclick="window.location.href='/login'" name="logout" class="danger">Logout</button>   
       <script src="/static/script.js"></script>
   </body>
