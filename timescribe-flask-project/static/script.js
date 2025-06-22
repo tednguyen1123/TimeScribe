@@ -1,4 +1,54 @@
+let mediaRecorder;
+let audioChunks = [];
+
+function startRecordingLive() {
+  const listeningBox = document.getElementById("listening-box");
+
+  listeningBox.innerText = "Listening...";
+  audioChunks = [];
+
+  navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.start();
+
+    mediaRecorder.ondataavailable = (e) => {
+      audioChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = async () => {
+      listeningBox.innerText = "Stopped listening.";
+      const fullBlob = new Blob(audioChunks, { type: "audio/webm" });
+
+      const formData = new FormData();
+      formData.append("audio", fullBlob, "recording.webm");
+
+      const res = await fetch("/transcribe", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+      const transcript = data.transcription;
+
+      // Show transcription to user
+      listeningBox.innerHTML += `<i><b>You:</b> ${transcript}</i>`;
+
+      // Pre-fill input box (but don't send it yet)
+      document.getElementById("user-input").value = transcript;
+    };
+  });
+}
+
+function stopRecordingLive() {
+  const listeningBox = document.getElementById("listening-box");
+  listeningBox.innerText = "";
+  if (mediaRecorder && mediaRecorder.state !== "inactive") {
+    mediaRecorder.stop();
+  }
+}
+
 async function sendMessage() {
+  stopRecordingLive();
   const input = document.getElementById("user-input");
   const isVoiceChecked = document.getElementById("voice-input").checked;
   const chatBox = document.getElementById("chat-box");

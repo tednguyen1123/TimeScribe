@@ -8,9 +8,13 @@
   <body>
     <h1>TimeScribe</h1>
     <div id="chat-box"></div>
+    <div id="listening-box"></div>
     <input type="text" id="user-input" placeholder="Start logging..." />
-    <button onclick="sendMessage()">Send</button>
-    <input type="checkbox" id="voice-input" />
+    <button onclick="sendMessage()">Send</button><br>
+    
+    <button onclick="startRecordingLive()">Start Recording 🎤</button>
+    <button onclick="stopRecordingLive()">Stop Recording 🛑</button><br>
+    <input type="checkbox" id="voice-output" /><label for="voice-output">Enable Voice Output</label>
     
     <!--ACTION: Add Summarize command-->
     <!--ACTION: Add Recall command-->
