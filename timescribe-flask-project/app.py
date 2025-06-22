@@ -1,18 +1,19 @@
 import os, dotenv
-import json
+import datetime
 from flask import Flask, render_template, request, Response, session, redirect, jsonify
 from flask_cors import CORS  # To handle cross-origin requests
 from groq import Groq
-from letta_client import Letta
+from letta_client import Letta, MessageCreate
+import requests
 from supabase import create_client, Client
 
-client = Letta(token=os.getenv("LETTA_API_KEY"))
+dotenv.load_dotenv()
+letta_client = Letta(token=os.getenv("LETTA_API_KEY"))
 supabase = create_client(
     os.getenv("SUPABASE_URL"),
     os.getenv("SUPABASE_KEY")
 )
-dotenv.load_dotenv()
-client = Groq(
+groq_client = Groq(
     api_key=os.getenv("GROQ_API_KEY"),
 )
 
@@ -33,8 +34,8 @@ def index():
             agent_id = existing.data[0]['agent_id']
             print(f"Agent already exists for {user_id}: {agent_id}")
         else:
-            agent = client.agents.create(
-                model="openai/gpt-4",
+            agent = letta_client.agents.create(
+                model="openai/gpt-4o-mini",
                 embedding="openai/text-embedding-3-small",
                 memory_blocks=[
                     {"label": "human", "value": f"User name: {user_id}"},
@@ -68,15 +69,32 @@ def login():
 def chat():
     data = request.get_json()
     user_input = data.get("message", "")
-
+    datetime_now = datetime.datetime.now().strftime(r"%Y-%m-%d %H:%M")
+    user_input = f"{datetime_now} \n\n{user_input}"
+    print(f"User input: {user_input}")
     if not user_input:
         return {"error": "No message provided"}, 400
 
+    try:
+        response = letta_client.agents.messages.create(
+            agent_id=session.get("agent_id"),
+            messages=[
+                MessageCreate(
+                    role="user",
+                    content=user_input,
+                ),
+            ],
+        )
+        print("Letta response:", response)
+    except requests.exceptions.Timeout as e:
+        print("❌ Letta timeout error:", e)
+        return jsonify({"error": "Request timed out"}), 504
+    except Exception as e:
+        print("❌ Letta error:", e)
+        return jsonify({"error": str(e)}), 500
+    print("Gurt", response.messages[1].content)
 
-
-
-
-    return Response(stream(), mimetype="text/plain")
+    return Response(response=response.messages[1].content, mimetype="text/plain")
 
 @app.route("/transcribe", methods=["POST"])
 def transcribe():
@@ -86,7 +104,7 @@ def transcribe():
     # Open the audio file
     file_bytes = audio_file.read()
     # Return the translation text as a response
-    translation = client.audio.translations.create(
+    translation = groq_client.audio.translations.create(
     file=(filename, file_bytes), # Required audio file
     model="whisper-large-v3", # Required model to use for translation
     prompt="Specify context or spelling",  # Optional
@@ -104,4 +122,4 @@ def transcribe():
     return jsonify({"transcription": transcription})
         
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8001)
+    app.run(debug=True, host="0.0.0.0", port=8002)
