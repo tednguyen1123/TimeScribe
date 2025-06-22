@@ -101,8 +101,8 @@
       </form>
     <button onclick="startRecordingLive()">Start Recording 🎤</button>
     <button onclick="stopRecordingLive()">Stop Recording 🛑</button><br>
-    <input type="checkbox" id="voice-output" /><label for="voice-output">Enable Voice Output</label>
-    
+    <input type="checkbox" id="voice-output" disabled/><label for="voice-output"><s>Enable Voice Output</s> Coming soon! </label>
+    <p></p>
     <!--ACTION: Add Summarize command-->
     <!--ACTION: Add Recall command-->
     <!--ACTION: Add Speak command-->
@@ -117,7 +117,7 @@
       <button type="submit" onclick="summarizeEntries()">Summarize Entries</button>
     </form><br>
 
-    
+
       <button onclick="window.location.href='/login'" name="logout" class="danger">Logout</button>   
       <script src="/static/script.js"></script>
   </body>
