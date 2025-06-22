@@ -40,34 +40,13 @@ def login():
 def chat():
     data = request.get_json()
     user_input = data.get("message", "")
-    isVoiceChecked = data.get("isVoiceChecked", False)
 
-    if not user_input and not isVoiceChecked:
+    if not user_input:
         return {"error": "No message provided"}, 400
-    
-    if isVoiceChecked:
-        # Specify the path to the audio file
-        filename = os.path.dirname(__file__) + "/sample_audio.m4a" # Replace with your audio file!
-        # Open the audio file
-        with open(filename, "rb") as file:
-        # Create a translation of the audio file
-            translation = client.audio.translations.create(
-            file=(filename, file.read()), # Required audio file
-            model="distil-whisper-large-v3-en", # Required model to use for translation
-            prompt="Specify context or spelling",  # Optional
-            language="en", # Optional ('en' only)
-            response_format="json",  # Optional
-            temperature=0.0  # Optional
-        )
-        # Return the translation text as a response
-        if translation.text:
-            user_input = translation.text
-        else:
-            return {"error": "No translation available"}, 400
     
     def stream():
         completion = client.chat.completions.create(
-            model="meta-llama/llama-4-scout-17b-16e-instruct",
+            model="llama3-8b-8192",
             messages=[{"role": "user", "content": user_input}],
             temperature=1,
             max_completion_tokens=1024,
@@ -81,6 +60,31 @@ def chat():
 
     return Response(stream(), mimetype="text/plain")
 
+app.route("/transcribe", methods=["POST"])
+def transcribe():
+    # Specify the path to the audio file
+    filename = os.path.dirname(__file__) + "recording.webm" # Replace with your audio file!
+    # Open the audio file
+    with open(filename, "rb") as file:
+    # Create a translation of the audio file
+        translation = client.audio.translations.create(
+        file=(filename, file.read()), # Required audio file
+        model="distil-whisper-large-v3-en", # Required model to use for translation
+        prompt="Specify context or spelling",  # Optional
+        language="en", # Optional ('en' only)
+        response_format="json",  # Optional
+        temperature=0.0  # Optional
+    )
+    # Return the translation text as a response
+    if translation.text:
+        transcription = translation.text
+    else:
+        return {"error": "No translation available"}, 400
+    
+    print(transcription)
+    
+    return Response(transcription, mimetype="text/plain")
+        
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8001))
     app.run(debug=True, host="0.0.0.0", port=port)
