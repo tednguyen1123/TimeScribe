@@ -7,6 +7,7 @@ from letta_client import Letta, MessageCreate
 from supabase import create_client, Client
 from threading import Thread
 from concurrent.futures import ThreadPoolExecutor
+import base64
 
 executor = ThreadPoolExecutor()
 dotenv.load_dotenv()
@@ -201,6 +202,7 @@ def transcribe():
 @app.route("/summarize", methods=["POST"])
 def summarize():
     data = request.get_json()
+    voiceOn = data.get("voice_on", False)
     #   body = { date_start: dateStart.value, date_end: dateEnd.value };
     date_start = data.get("date_start")
     date_end = data.get("date_end")
@@ -228,6 +230,31 @@ def summarize():
 
 
         summary = response.choices[0].message.content
+
+        if voiceOn:
+            speech_file_path = "speech.wav" 
+            model = "playai-tts"
+            voice = "Basil-PlayAI"
+            text = summary
+            response_format = "wav"
+
+            response = groq_client.audio.speech.create(
+                model=model,
+                voice=voice,
+                input=text,
+                response_format=response_format
+            )
+
+            response.write_to_file(speech_file_path)
+
+            with open(speech_file_path, "rb") as f:
+                audio_data = base64.b64encode(f.read()).decode("utf-8")
+
+            return jsonify({
+                "audio_data": audio_data,
+                "mime_type": "audio/wav",
+                "summary": summary
+            })
 
         return jsonify({"summary": summary})
     except Exception as e:

@@ -91,21 +91,28 @@ function summarizeEntries() {
 
 
   chatBox.innerHTML += `<p><b>Summarizing entries from </b> ${dateStart.value} <b>to</b> ${dateEnd.value}</p>`;
+  const voiceOn = document.getElementById("voice-output").checked;
 
-
-  body = { date_start: dateStart.value, date_end: dateEnd.value };
+  body = { date_start: dateStart.value, date_end: dateEnd.value, voice_on: voiceOn};
   fetch("/summarize", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body)
   })
-    .then(response => response.json())
-    .then(data => {
-      console.log("Summary Response:", data);
-      chatBox.innerHTML += `<p><b>Summary:</b> ${data.summary}</p>`;
-    })
-    .catch(err => {
-      console.error("Error summarizing entries:", err);
-      chatBox.innerHTML += `<p><b>Error:</b> Could not summarize entries.</p>`;
-    });
+  .then(res => res.json())
+  .then(data => {
+    if (voiceOn) {
+      const byteChars = atob(data.audio_data);
+      const byteNumbers = new Array(byteChars.length);
+      for (let i = 0; i < byteChars.length; i++) {
+        byteNumbers[i] = byteChars.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: data.mime_type });
+      const audioUrl = URL.createObjectURL(blob);
+      const audio = new Audio(audioUrl);
+      audio.play();
+    }
+    chatBox.innerHTML += `<p><b>Summary:</b> ${data.summary}</p>`;
+  });
 }
