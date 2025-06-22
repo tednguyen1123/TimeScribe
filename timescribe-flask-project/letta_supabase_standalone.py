@@ -1,5 +1,5 @@
-from letta_client import Letta
 import os, dotenv
+from letta_client import Letta
 from supabase import create_client, Client
 
 dotenv.load_dotenv()
