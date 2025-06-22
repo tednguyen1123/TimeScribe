@@ -4,11 +4,97 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TimeScribe</title>
+    <style>
+        body {
+          font-family: 'Inter', sans-serif;
+          background-color: #f7f7fa;
+          color: #333;
+          max-width: 600px;
+          margin: 40px auto;
+          padding: 20px;
+          border-radius: 12px;
+          box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+          text-align: center;
+          margin-bottom: 24px;
+          color: #2c3e50;
+        }
+        #chat-box {
+          background-color: #ffffff;
+          border: 1px solid #ddd;
+          padding: 15px;
+          border-radius: 8px;
+          height: 250px;
+          overflow-y: auto;
+          margin-bottom: 20px;
+        }
+        input[type="text"],
+        input[type="date"] {
+          padding: 10px;
+          font-size: 16px;
+          margin: 8px 0;
+          width: calc(100% - 22px);
+          border: 1px solid #ccc;
+          border-radius: 6px;
+        }
+        .danger {
+          background-color: #e74c3c;
+        }
+        .danger:hover {
+          background-color: #c0392b;
+        }
+        button {
+          padding: 10px 16px;
+          margin: 6px 4px 12px 0;
+          border: none;
+          background-color: #4a90e2;
+          color: white;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 14px;
+        }
+        button:hover {
+          background-color: #357abd;
+        }
+        .controls {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-bottom: 12px;
+        }
+        .date-range {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin: 12px 0;
+        }
+        label {
+          font-size: 14px;
+          margin-top: 4px;
+        }
+        #voice-output {
+          margin-right: 6px;
+        }
+        .inline {
+          display: flex;
+          flex-wrap: row wrap;
+          align-items: center;
+          gap: 10px;
+        }
+        .inline button {
+          text-wrap: nowrap;
+          margin: 0;
+        }
+        .inline input[type="text"] {
+          flex-grow: 1;
+        }
+      </style>
   </head>
   <body>
     <h1>TimeScribe Login</h1>
-    <form action="/login" method="post">
-      <label for="username">Username:</label>
+    <form action="/login" method="post" class="inline">
+      <!-- <label for="username">Username:</label> -->
       <input type="text" id="user_id" name="user_id" required placeholder="User ID"/>
       <button type="submit">Login</button>
     </form>

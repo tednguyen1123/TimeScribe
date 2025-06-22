@@ -222,7 +222,7 @@ def summarize():
         response = groq_client.chat.completions.create(
             model="llama-3.1-8b-instant",
             messages=[
-                {"role": "system", "content": "You are a memory summarizer, helping users summarize their memories. Make your messages without formatting and to the point. You only write small conversational paragraphs."},
+                {"role": "system", "content": "You are a memory summarizer, helping users summarize their memories. Make your messages without formatting and to the point. Do not mention yoursef at all. You only write small conversational paragraphs."},
                 {"role": "user", "content": f"Summarize the following memories briefly: {', '.join(results)}"}
             ],
             temperature=0.0
@@ -237,4 +237,4 @@ def summarize():
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=8002)
+    app.run(debug=True, host="0.0.0.0", port=8003)
