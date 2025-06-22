@@ -16,7 +16,6 @@ function startRecordingLive() {
     };
 
     mediaRecorder.onstop = async () => {
-      listeningBox.innerText = "Stopped listening.";
       const fullBlob = new Blob(audioChunks, { type: "audio/webm" });
 
       const formData = new FormData();
@@ -29,12 +28,11 @@ function startRecordingLive() {
 
       const data = await res.json();
       const transcript = data.transcription;
-
-      // Show transcription to user
-      listeningBox.innerHTML += `<i><b>You:</b> ${transcript}</i>`;
+      console.log("Transcription:", data);
 
       // Pre-fill input box (but don't send it yet)
       document.getElementById("user-input").value = transcript;
+      sendMessage();
     };
   });
 }
@@ -48,9 +46,7 @@ function stopRecordingLive() {
 }
 
 async function sendMessage() {
-  stopRecordingLive();
   const input = document.getElementById("user-input");
-  const isVoiceChecked = document.getElementById("voice-input").checked;
   const chatBox = document.getElementById("chat-box");
 
   const message = input.value;
@@ -60,7 +56,7 @@ async function sendMessage() {
   input.value = "";
 
 
-  body = { ...{ message }, ...{ isVoiceChecked } };
+  body = { ...{ message } };
   const response = await fetch("/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

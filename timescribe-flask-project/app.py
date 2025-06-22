@@ -1,6 +1,6 @@
 import os, dotenv
 import json
-from flask import Flask, render_template, request, Response, session, redirect
+from flask import Flask, render_template, request, Response, session, redirect, jsonify
 from flask_cors import CORS  # To handle cross-origin requests
 from groq import Groq
 
@@ -60,31 +60,30 @@ def chat():
 
     return Response(stream(), mimetype="text/plain")
 
-app.route("/transcribe", methods=["POST"])
+@app.route("/transcribe", methods=["POST"])
 def transcribe():
     # Specify the path to the audio file
-    filename = os.path.dirname(__file__) + "recording.webm" # Replace with your audio file!
+    audio_file = request.files["audio"]
+    filename = audio_file.filename 
     # Open the audio file
-    with open(filename, "rb") as file:
-    # Create a translation of the audio file
-        translation = client.audio.translations.create(
-        file=(filename, file.read()), # Required audio file
-        model="distil-whisper-large-v3-en", # Required model to use for translation
-        prompt="Specify context or spelling",  # Optional
-        language="en", # Optional ('en' only)
-        response_format="json",  # Optional
-        temperature=0.0  # Optional
-    )
+    file_bytes = audio_file.read()
     # Return the translation text as a response
+    translation = client.audio.translations.create(
+    file=(filename, file_bytes), # Required audio file
+    model="whisper-large-v3", # Required model to use for translation
+    prompt="Specify context or spelling",  # Optional
+    response_format="json",  # Optional
+    temperature=0.0  # Optional
+    )
+
     if translation.text:
         transcription = translation.text
     else:
-        return {"error": "No translation available"}, 400
-    
+        transcription = "No transcription available."
+
     print(transcription)
     
-    return Response(transcription, mimetype="text/plain")
+    return jsonify({"transcription": transcription})
         
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8001))
-    app.run(debug=True, host="0.0.0.0", port=port)
+    app.run(debug=True, host="0.0.0.0", port=8001)
